@@ -1,7 +1,11 @@
+'''
+Settings of our game
+'''
 import pygame as pg
 import os, random
 
 from folders import *
+from tools import *
 
 # Screen Settings
 WIDTH = 800
@@ -36,19 +40,23 @@ METEORS_DATA = {
         'points':50,
     },
 }
+METEORS_TO_DODGE = 40
 
 # Ship Settings
-
 SPEED = 8
 STATES = {
     'ALIVE':'A',
     'EXPLODING':'E',
+    'NOT ALIVE':'N',
     'DEAD':'D',
 }
 
 # Colors
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
+RED = (255, 0, 0)
+GREEN = (0, 255, 0)
+BLUE = (0, 0, 255)
 
 # Fonts
 SPACE = os.path.join(FONTS_FOLDER, 'Space_font.ttf')

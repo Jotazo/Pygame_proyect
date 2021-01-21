@@ -16,10 +16,11 @@ class Ship(pg.sprite.Sprite):
     def __init__(self):
         pg.sprite.Sprite.__init__(self)
 
-        self.image, self.rect = load_image(SHIP_FOLDER, 'ship_1_48x48.xcf', y=276)
+        self.image, self.rect = load_image(SHIP_FOLDER, 'ship.xcf', y=276)
 
         self.selected_expl_img = 0
         self.speed_explosion = 0
+        self.explosion_sound = load_sound(SOUNDS_FOLDER, 'explosion.wav')
 
         self.lifes = 3
 
@@ -28,7 +29,9 @@ class Ship(pg.sprite.Sprite):
         self.vy = 0
 
     def update(self):
-        
+        '''
+        Update method ship
+        '''
         self.rect.y += self.vy
         
         if self.state == STATES['EXPLODING']:
@@ -43,23 +46,35 @@ class Ship(pg.sprite.Sprite):
         self._moving_ship()
 
     def _moving_ship(self):
+        '''
+        Moving method ship
+        '''
+        if self.state != STATES['EXPLODING']:
+            key_pressed = pg.key.get_pressed()
 
-        key_pressed = pg.key.get_pressed()
-
-        if key_pressed[K_UP]:
-            self.vy = -SPEED
-        elif key_pressed[K_DOWN]:
-            self.vy = SPEED
+            if key_pressed[K_UP]:
+                self.vy = -SPEED
+            elif key_pressed[K_DOWN]:
+                self.vy = SPEED
+            else:
+                self.vy = 0
         else:
             self.vy = 0
 
     def _explosion(self):
+        '''
+        Explosion animation method.
+        It returns the image of the explosion. When we reach the last image, we return the original
+        image of the ship, restart the selected_expl_img to 0, we remove 1 life from our
+        ship, and change the state to 'NOT ALIVE'
+        '''
 
         if self.selected_expl_img >= 8:
-            img = load_image(SHIP_FOLDER, 'ship_1_48x48.xcf', rect=False)
+            img = load_image(SHIP_FOLDER, 'ship.xcf', rect=False)
             self.selected_expl_img = 0
             self.lifes -= 1
-            self.state = STATES['ALIVE']
+            self.state = STATES['NOT ALIVE']
+
         else:
             img = load_image(EXPLOSION_FOLDER, f'explosion_{self.selected_expl_img}.xcf', rect=False)
             if self.speed_explosion % 4 == 0:
@@ -86,4 +101,7 @@ class Meteor(pg.sprite.Sprite):
         self.vx = random.randint(4, 12)
 
     def update(self):
+        '''
+        Update meteor method
+        '''
         self.rect.x -= self.vx

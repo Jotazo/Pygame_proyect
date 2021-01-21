@@ -1,3 +1,6 @@
+'''
+Folders settings for help to reduce the code
+'''
 import os
 
 # Folders Settings
