@@ -48,6 +48,11 @@ STATES = {
     'ALIVE':'A',
     'EXPLODING':'E',
     'NOT ALIVE':'N',
+    'ROTATING':'R',
+    'PREPARED TO LAND':'PTL',
+    'LANDING':'L',
+    'LANDED':'LD',
+    'HIDDEN':'HN',
     'DEAD':'D',
 }
 

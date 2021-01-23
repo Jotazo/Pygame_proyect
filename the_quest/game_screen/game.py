@@ -29,16 +29,17 @@ class Screen:
         self.ship = Ship()
         self.clock = pg.time.Clock() 
         self.starting_screen = Starting_Screen(self.screen, self.ship)
-        self.black_screen = BlackScreen(self.screen)
 
         # Planet image and rect
-        self.planet , self.planet_rect = load_image(IMAGES_FOLDER, 'jupiter.png')
+        self.planet, self.rect_planet = load_image(IMAGES_FOLDER, 'jupiter.png', x=WIDTH, y=50)
         self.planet_x = 0 # For moving planet
         self.planet_timer = 0 # For speed draw planet
 
         # Vars top level
         self.score = 0
-        self.meteors_dodged = 0
+        self.meteors_dodged = 30
+
+        self.ticks = 0
         
     def new_game(self):
         # Start a new game
@@ -49,11 +50,14 @@ class Screen:
         '''
         Main loop main game
         '''
-        self.running = True
-        while self.running:
+
+        while self.ship.state != STATES['DEAD']:
             dt = self.clock.tick(FPS)
+            if self.ship.lifes == 3:
+                pass
+                # self._initial_screen(dt)
             if self.ship.state == STATES['NOT ALIVE']:
-                self.black_screen.black_screen(self.ship.lifes) # Look that return
+                self._black_screen(self.ship.lifes, self.ticks)
                 self._reset()
             self._add_meteors(dt)
             self._handle_events()
@@ -70,20 +74,36 @@ class Screen:
             if event.type == pg.QUIT:
                 pg.quit()
                 sys.exit()
+            if event.type == pg.KEYDOWN:
+                if event.key == pg.K_SPACE and self.ship.state == STATES['ALIVE']\
+                                and self.meteors_dodged >= METEORS_TO_DODGE and self.planet_x == 272:
+                    self.ship.state = STATES['ROTATING']
+
+                if event.key == pg.K_SPACE and self.ship.state == STATES['PREPARED TO LAND']:
+                    self.ship.state = STATES['LANDING']
 
     def _update_screen(self, dt):
         '''
         Update screen
         '''
         # Drawing background movement
-        x_rel = self.background_x % self.rect.width
-        self.screen.blit(self.background, (x_rel - self.rect.width ,0))
-        if x_rel < WIDTH:
-            self.screen.blit(self.background, (x_rel,0))
-        self.background_x -= 1
+        self._move_background()
 
         # Drawing top level menu
         self._top_level_menu()
+
+        # Drawing Planet
+        self.planet_timer += dt
+        if self.meteors_dodged >= METEORS_TO_DODGE:
+            if self.ship.state != STATES['LANDED'] and self.ship.state != STATES['HIDDEN']:
+                self.screen.blit(self.planet, (self.rect_planet.x-self.planet_x, self.rect_planet.y))
+                if self.planet_x <= 270 and self.planet_timer >= 85:
+                    self.planet_x += 2
+            else:
+                if self.planet_x >= 0:
+                    self.planet_x -= 2
+                self.screen.blit(self.planet, (self.rect_planet.x-self.planet_x, self.rect_planet.y))
+            
 
         # Drawing Ship
         self.screen.blit(self.ship.image, (self.ship.rect.x, self.ship.rect.y))
@@ -91,12 +111,8 @@ class Screen:
         # Drawing meteors
         self.meteors.draw(self.screen)
 
-        # Drawing Planet
-        self.planet_timer += dt
-        if self.meteors_dodged >= METEORS_TO_DODGE:
-            self.screen.blit(self.planet, (WIDTH-self.planet_x, 50))
-            if self.planet_x <= 270 and self.planet_timer >= 85:
-                self.planet_x += 2
+        # Drawing end level messages
+        self._end_level_msg()
 
         pg.display.flip()
 
@@ -131,6 +147,16 @@ class Screen:
                     self.score += meteor.points
                     self.meteors_dodged += 1
 
+    def _move_background(self):
+        '''
+        The method that makes the background movement
+        '''
+        x_rel = self.background_x % self.rect.width
+        self.screen.blit(self.background, (x_rel - self.rect.width ,0))
+        if x_rel < WIDTH:
+            self.screen.blit(self.background, (x_rel,0))
+        self.background_x -= 1
+
     def _collition(self):
         '''
         Collitions method.
@@ -144,20 +170,77 @@ class Screen:
                 self.ship.explosion_sound.set_volume(0.02)
                 self.ship.explosion_sound.play()
 
+    def _initial_screen(self):
+        #TODO: This method
+        pass
+
+    def _black_screen(self, lifes, ticks):
+        '''
+        The method that shows the black screen when ship
+        explodes
+        '''
+        start = False
+        while not start:
+            dt = self.clock.tick(FPS)
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    pg.quit()
+                    sys.exit()
+                if event.type == pg.KEYDOWN:
+                    if event.key == K_SPACE:
+                        start = True
+            ticks += dt
+            self.screen.fill(BLACK)
+            
+            draw_text2(self.screen, SPACE2, 32, 'Level 1 - 1', WHITE, position='closecenterup', width=WIDTH, height=HEIGHT)
+            draw_text2(self.screen, SPACE, 16, 'Lifes - ', WHITE, position='closecenterleft', width=WIDTH, height=HEIGHT)
+            
+            x_pos_lifes = 0
+            for life in range(lifes):
+                self.screen.blit(self.ship.image, ((WIDTH/2-(self.ship.rect.w/2))+x_pos_lifes, HEIGHT/2-(self.ship.rect.w/2)))
+                x_pos_lifes += self.ship.rect.w
+
+            if ticks <= 500:                
+                draw_text2(self.screen, SPACE, 16, 'Press < SPACE > to start', WHITE, position='bottomcenter', width=WIDTH, height=HEIGHT)
+            elif ticks <= 1000:
+                pass
+            else:
+                ticks = 0
+            
+            pg.display.flip()
+
     def _top_level_menu(self):
         '''
         Method that shows the top level image and text
         '''
         top_level_img, top_level_img_rect = load_image(IMAGES_FOLDER, 'score1.png')
-        lifes_font, lifes_text = draw_text(SPACE, 16, f'Lifes - {self.ship.lifes}', WHITE)
-        score_font, score_text = draw_text(SPACE, 16, f'Score - {self.score}', WHITE)
-        meteors_dodged_font, meteors_dodged_text = draw_text(SPACE, 16, f'Meteors Dodged - {self.meteors_dodged}', WHITE)
-
-        self.screen.blit(top_level_img, (0, 0))
-        self.screen.blit(lifes_text, (50,15))
-        self.screen.blit(meteors_dodged_text, (240, 15))
-        self.screen.blit(score_text, (590, 15))
+        draw_text2(self.screen, SPACE, 16, f'Lifes - {self.ship.lifes}', WHITE, pos_x=50, pos_y=15)
+        draw_text2(self.screen, SPACE, 16, f'Meteors Dodged - {self.meteors_dodged}', WHITE, pos_x=240, pos_y=15)
+        draw_text2(self.screen, SPACE, 16, f'Score - {self.score}', WHITE, pos_x=590, pos_y=15)
         
+        self.screen.blit(top_level_img, (0, 0))
+
+    def _end_level_msg(self):
+        '''
+        Method that shows the last messages on the screen, when
+        the planet appears
+        '''
+        if self.planet_x >= 270:
+            if self.ship.state == STATES['ALIVE']:
+                draw_text2(self.screen, SPACE, 16, 'Press < SPACE > to rotate the ship', WHITE, position='topcenter', pos_y=75, width=WIDTH)
+            if self.ship.state == STATES['ROTATING']:
+                draw_text2(self.screen, SPACE, 16, 'Rotating ship, please, wait...', WHITE, position='topcenter', pos_y=75, width=WIDTH)
+            if self.ship.state == STATES['PREPARED TO LAND']:
+                draw_text2(self.screen, SPACE, 16, 'Press < SPACE > to land', WHITE, position='topcenter', pos_y=75, width=WIDTH)
+            if self.ship.state == STATES['LANDING']:
+                draw_text2(self.screen, SPACE, 16, 'Landing, please, wait...', WHITE, position='topcenter', pos_y=75, width=WIDTH)
+        else:
+            if self.ship.state == STATES['LANDED']:
+                draw_text2(self.screen, SPACE, 26, 'SUCCESSFULLY LANDED!', WHITE, position='topcenter', pos_y=75, width=WIDTH)
+            if self.ship.state == STATES['HIDDEN']:
+                draw_text2(self.screen, SPACE2, 54, 'JUPITER CONQUERED!', WHITE, position='center', width=WIDTH, height=HEIGHT)
+                draw_text2(self.screen, SPACE, 16, 'Press < SPACE > to continue', WHITE, position='bottomcenter', width=WIDTH, height=HEIGHT)
+                
     def _reset(self):
         '''
         Method that resets the meteors Group, ship state to "ALIVE", the ship rect y to 276(initial y),
@@ -169,6 +252,7 @@ class Screen:
         self.planet_x = 0
         self.meteors_dodged = 0
         self.score = 0
+
 
 class Starting_Screen:
 
@@ -258,66 +342,3 @@ class Starting_Screen:
         if self.ticks >= 85:
             self.ix_pos += 1
             self.ticks = 0
-
-class BlackScreen:
-
-    def __init__(self, screen):
-
-        self.screen = screen
-
-        self.level_font, self.level_txt = draw_text(SPACE2, 32, 'Level 1 - 1', WHITE)
-        self.lifes_font, self.lifes_txt = draw_text(SPACE, 16, 'Lifes - ', WHITE)
-        self.lifes_img, self.lifes_rect = load_image(SHIP_FOLDER, 'ship.xcf')
-        self.start_font, self.start_txt = draw_text(SPACE, 16, 'Press < SPACE > to start', WHITE)
-
-        self.ticks = 0
-
-        self.start = False
-
-    def black_screen(self, lifes):
-        '''
-        Main loop
-        '''
-        while not self.start:
-            dt = pg.time.Clock().tick(FPS)
-            self._handle_events()
-            self._update_screen(dt, lifes)
-        self.start = False
-
-    def _handle_events(self):
-        '''
-        Handling events
-        '''
-        for event in pg.event.get():
-            if event.type == pg.QUIT:
-                pg.quit()
-                sys.exit()
-            if event.type == pg.KEYDOWN:
-                if event.key == pg.K_SPACE:
-                    self.start = True
-    
-    def _update_screen(self, dt, lifes):
-        '''
-        Update screen filling the background with black color, and shows the text (level, lifes, press button "blink")
-        '''
-
-        self.ticks += dt
-
-        self.screen.fill(BLACK)
-
-        self.screen.blit(self.level_txt,  ((WIDTH/2)-(self.level_txt.get_size()[0]//2), (HEIGHT/2)//1.5))
-        self.screen.blit(self.lifes_txt, ((WIDTH/2)-(self.lifes_txt.get_size()[0]//0.8), (HEIGHT/2)-(self.lifes_txt.get_size()[1]//2)))
-
-        x_pos_lifes = 0
-        for life in range(lifes):
-            self.screen.blit(self.lifes_img, ((WIDTH/2-(self.lifes_rect.w/2))+x_pos_lifes, HEIGHT/2-(self.lifes_rect.w/2)))
-            x_pos_lifes += self.lifes_rect.w
-
-        if self.ticks <= 500:
-            self.screen.blit(self.start_txt, (WIDTH/2-(self.start_txt.get_size()[0]//2), HEIGHT/2+HEIGHT/4))
-        elif self.ticks <= 1000:
-            pass
-        else:
-            self.ticks = 0
-
-        pg.display.flip()
