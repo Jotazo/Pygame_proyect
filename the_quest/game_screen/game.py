@@ -96,14 +96,12 @@ class Screen:
         self.planet_timer += dt
         if self.meteors_dodged >= METEORS_TO_DODGE:
             if self.ship.state != STATES['LANDED'] and self.ship.state != STATES['HIDDEN']:
-                self.screen.blit(self.planet, (self.rect_planet.x-self.planet_x, self.rect_planet.y))
                 if self.planet_x <= 270 and self.planet_timer >= 85:
                     self.planet_x += 2
             else:
                 if self.planet_x >= 0:
                     self.planet_x -= 2
-                self.screen.blit(self.planet, (self.rect_planet.x-self.planet_x, self.rect_planet.y))
-            
+            self.screen.blit(self.planet, (self.rect_planet.x-self.planet_x, self.rect_planet.y))
 
         # Drawing Ship
         self.screen.blit(self.ship.image, (self.ship.rect.x, self.ship.rect.y))
