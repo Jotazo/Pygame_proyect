@@ -32,7 +32,8 @@ class Screen:
         self.meteors = pg.sprite.Group()
         self.ship = Ship()
         self.clock = pg.time.Clock()
-        self.pause = PauseScreen() 
+        self.pause = PauseScreen()
+        self.bl_scr = BlackScreen() 
 
         # Planet image and rect
         self.planet, self.rect_planet = load_image(IMAGES_FOLDER, 'jupiter.png', x=WIDTH, y=50)
@@ -61,7 +62,7 @@ class Screen:
         while self.ship.state != STATES['DEAD']:
             dt = self.clock.tick(FPS)
             if self.ship.state == STATES['NOT ALIVE']:
-                self._black_screen(self.ship.lifes, self.ticks)
+                self.bl_scr.on_black(self.screen, self.ship.lifes)
                 self._reset()
             self._add_meteors(dt)
             self._handle_events()
@@ -82,6 +83,9 @@ class Screen:
                 self._keydown_events(event)
 
     def _keydown_events(self, event):
+        '''
+        Handling keydown events
+        '''
         if event.key == pg.K_SPACE: 
             if self.ship.state == STATES['ALIVE']\
             and self.meteors_dodged >= METEORS_TO_DODGE\
@@ -188,7 +192,6 @@ class Screen:
                 self.ship.explosion_sound.play()
 
     def _initial_screen(self, ticks):
-        #TODO: This method
         starting = True
         ix_pos = -50
         while starting:
@@ -227,41 +230,6 @@ class Screen:
 
         ticks = 0
 
-    def _black_screen(self, lifes, ticks):
-        '''
-        The method that shows the black screen when ship
-        explodes
-        '''
-        start = False
-        while not start:
-            dt = self.clock.tick(FPS)
-            for event in pg.event.get():
-                if event.type == pg.QUIT:
-                    pg.quit()
-                    sys.exit()
-                if event.type == pg.KEYDOWN:
-                    if event.key == K_SPACE:
-                        start = True
-            ticks += dt
-            self.screen.fill(BLACK)
-            
-            draw_text2(self.screen, SPACE2, 32, 'Level 1 - 1', WHITE, position='closecenterup', width=WIDTH, height=HEIGHT)
-            draw_text2(self.screen, SPACE, 16, 'Lifes - ', WHITE, position='closecenterleft', width=WIDTH, height=HEIGHT)
-            
-            x_pos_lifes = 0
-            for life in range(lifes):
-                self.screen.blit(self.ship.image, ((WIDTH/2-(self.ship.rect.w/2))+x_pos_lifes, HEIGHT/2-(self.ship.rect.w/2)))
-                x_pos_lifes += self.ship.rect.w
-
-            if ticks <= 500:                
-                draw_text2(self.screen, SPACE, 16, 'Press < SPACE > to start', WHITE, position='bottomcenter', width=WIDTH, height=HEIGHT)
-            elif ticks <= 1000:
-                pass
-            else:
-                ticks = 0
-            
-            pg.display.flip()
-
     def _top_level_menu(self):
         '''
         Method that shows the top level image and text
@@ -280,16 +248,16 @@ class Screen:
         '''
         if self.planet_x >= 270:
             if self.ship.state == STATES['ALIVE']:
-                draw_text2(self.screen, SPACE, 16, 'Press < SPACE > to rotate the ship', WHITE, position='topcenter', pos_y=75, width=WIDTH)
+                draw_text2(self.screen, SPACE, 16, 'Press < SPACE > to rotate the ship', WHITE, position='topcenter', width=WIDTH)
             if self.ship.state == STATES['ROTATING']:
-                draw_text2(self.screen, SPACE, 16, 'Rotating ship, please, wait...', WHITE, position='topcenter', pos_y=75, width=WIDTH)
+                draw_text2(self.screen, SPACE, 16, 'Rotating ship, please, wait...', WHITE, position='topcenter', width=WIDTH)
             if self.ship.state == STATES['PREPARED TO LAND']:
-                draw_text2(self.screen, SPACE, 16, 'Press < SPACE > to land', WHITE, position='topcenter', pos_y=75, width=WIDTH)
+                draw_text2(self.screen, SPACE, 16, 'Press < SPACE > to land', WHITE, position='topcenter', width=WIDTH)
             if self.ship.state == STATES['LANDING']:
-                draw_text2(self.screen, SPACE, 16, 'Landing, please, wait...', WHITE, position='topcenter', pos_y=75, width=WIDTH)
+                draw_text2(self.screen, SPACE, 16, 'Landing, please, wait...', WHITE, position='topcenter', width=WIDTH)
         else:
             if self.ship.state == STATES['LANDED']:
-                draw_text2(self.screen, SPACE, 26, 'SUCCESSFULLY LANDED!', WHITE, position='topcenter', pos_y=75, width=WIDTH)
+                draw_text2(self.screen, SPACE, 26, 'SUCCESSFULLY LANDED!', WHITE, position='topcenter', width=WIDTH)
             if self.ship.state == STATES['HIDDEN']:
                 draw_text2(self.screen, SPACE2, 54, 'JUPITER CONQUERED!', WHITE, position='center', width=WIDTH, height=HEIGHT)
 
@@ -306,7 +274,7 @@ class Screen:
         '''
         Method that resets the meteors Group, ship state to "ALIVE", the ship rect y to 276(initial y),
         background_x to initial pos, the var for the planet draw to 0, and meteors dodged, score and ticks to 0,
-        sound restarts and if all_data we use in _pause_menu, we reset ship lifes to default (3)
+        sound restart and if we make a restart from pause menu, we reset ship lifes to default (3) and ship image
         '''
         self.meteors.empty()
         self.ship.state = STATES['ALIVE']
@@ -320,3 +288,4 @@ class Screen:
 
         if all_data:
             self.ship.lifes = LIFES
+            self.ship.image = load_image(SHIP_FOLDER, 'ship.xcf', rect=False)

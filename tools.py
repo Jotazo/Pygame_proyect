@@ -29,6 +29,9 @@ def load_image(path, img, x=0, y=0, rect=True):
         return img
 
 def load_and_draw_image(screen, path, img, x=0, y=0):
+    '''
+    Method that loads and draws the image at same time
+    '''
     img = pg.image.load(os.path.join(path, img))
     rect = img.get_rect()
 
@@ -92,6 +95,7 @@ def draw_text2(screen, font, size, text, color, position='', pos_x=0, pos_y=0, w
 
     if position == 'topcenter':
         pos_x = width/2-(msg_txt.get_size()[0]//2)
+        pos_y = 75
     if position == 'center':
         pos_x = width/2-(msg_txt.get_size()[0]//2)
         pos_y = height/2-(msg_txt.get_size()[1]//2)
