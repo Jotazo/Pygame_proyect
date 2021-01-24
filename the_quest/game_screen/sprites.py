@@ -22,7 +22,7 @@ class Ship(pg.sprite.Sprite):
         self.speed_explosion = 0
         self.explosion_sound = load_sound(SOUNDS_FOLDER, 'explosion.wav')
 
-        self.lifes = 3
+        self.lifes = LIFES
 
         self.state = STATES['ALIVE']
 

@@ -71,12 +71,15 @@ def draw_text2(screen, font, size, text, color, position='', pos_x=0, pos_y=0, w
         indicate, as, topcenter, center, closecenterup, closecenterleft,
         and bottomcenter.
             topcenter= takes the center of text size and puts centered in width
-                        and centered in height but a little bit higher
+                        and top of the screen
             center = puts the text on the center of the screen
-            closecenterup= takes the center of text size and puts centered in width
+            closecenterup = takes the center of text size and puts centered in width
                         and centered in height but more closer to top
-            closecenterleft= puts the text shifted a little bit to left
-            bottomcenter= puts the text centered on width and closer to bottom
+            closecenterleft = puts the text shifted a little bit to left
+            closecenterbottom = takes the center of text size and puts centered in width
+                        and centered in height but more closer to bottom
+            closecenterbottom2 = same as closecenterbottom but a little bit lower
+            bottomcenter = puts the text centered on width and closer to bottom
                         margin of the screen
         If we choose to add position param, we must to use also width and height
         and recommendable to use also pos_x and pos_y
@@ -100,7 +103,10 @@ def draw_text2(screen, font, size, text, color, position='', pos_x=0, pos_y=0, w
         pos_y = height/2-(msg_txt.get_size()[1]//2)
     if position == 'closecenterbottom':
         pos_x = width/2-(msg_txt.get_size()[0]//2)
-        pos_y = height/2-(msg_txt.get_size()[1]//2)
+        pos_y = height//1.7-(msg_txt.get_size()[1]//2)
+    if position == 'closecenterbottom2':
+        pos_x = width/2-(msg_txt.get_size()[0]//2)
+        pos_y = height//1.49-(msg_txt.get_size()[1]//2)
     if position == 'bottomcenter':
         pos_x = width/2-(msg_txt.get_size()[0]//2)
         pos_y = height/1.2-(msg_txt.get_size()[1]//2)

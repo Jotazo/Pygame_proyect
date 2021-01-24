@@ -1,11 +1,14 @@
 import pygame as pg
 import sys, os
+import pygame_menu as pg_menu
 
 from folders import *
 from tools import *
 
 from the_quest.game_screen.sprites import *
 from the_quest.game_screen.config import *
+
+from the_quest.optional_screens import *
 
 class Screen:
 
@@ -28,7 +31,8 @@ class Screen:
         # Instances
         self.meteors = pg.sprite.Group()
         self.ship = Ship()
-        self.clock = pg.time.Clock() 
+        self.clock = pg.time.Clock()
+        self.pause = PauseScreen() 
 
         # Planet image and rect
         self.planet, self.rect_planet = load_image(IMAGES_FOLDER, 'jupiter.png', x=WIDTH, y=50)
@@ -50,15 +54,15 @@ class Screen:
         '''
         Main loop main game
         '''
-        self.bg_sound.set_volume(0.2)
+        self.bg_sound.set_volume(0.02)
         self.bg_sound.play()
         self._initial_screen(self.ticks)
+
         while self.ship.state != STATES['DEAD']:
             dt = self.clock.tick(FPS)
             if self.ship.state == STATES['NOT ALIVE']:
                 self._black_screen(self.ship.lifes, self.ticks)
                 self._reset()
-            print(self.ticks)
             self._add_meteors(dt)
             self._handle_events()
             self._update_screen(dt)
@@ -75,16 +79,25 @@ class Screen:
                 pg.quit()
                 sys.exit()
             if event.type == pg.KEYDOWN:
-                if event.key == pg.K_SPACE: 
-                    if self.ship.state == STATES['ALIVE']\
-                    and self.meteors_dodged >= METEORS_TO_DODGE\
-                    and self.planet_x == 272:
-                        self.ship.state = STATES['ROTATING']
-                    if self.ship.state == STATES['PREPARED TO LAND']:
-                        self.ship.state = STATES['LANDING']
-                    if self.ship.state == STATES['HIDDEN']:
-                        pg.quit()
-                        sys.exit()
+                self._keydown_events(event)
+
+    def _keydown_events(self, event):
+        if event.key == pg.K_SPACE: 
+            if self.ship.state == STATES['ALIVE']\
+            and self.meteors_dodged >= METEORS_TO_DODGE\
+            and self.planet_x == 272:
+                self.ship.state = STATES['ROTATING']
+            if self.ship.state == STATES['PREPARED TO LAND']:
+                self.ship.state = STATES['LANDING']
+            if self.ship.state == STATES['HIDDEN']:
+                pg.quit()
+                sys.exit()
+        if event.key == pg.K_p:
+            reset = self.pause.on_pause(self.screen)
+            if reset:
+                self._reset(all_data=True)
+                self.bg_sound.play()
+                self._initial_screen(self.ticks)
 
     def _update_screen(self, dt):
         '''
@@ -191,7 +204,7 @@ class Screen:
 
             load_and_draw_image(self.screen, IMAGES_FOLDER, 'background.xcf')
             load_and_draw_image(self.screen, IMAGES_FOLDER, 'score1.png', y=ix_pos)
-            draw_text2(self.screen, SPACE, 16, 'Lifes - 3', WHITE, pos_x=50, pos_y=ix_pos+15)
+            draw_text2(self.screen, SPACE, 16, f'Lifes - {self.ship.lifes}', WHITE, pos_x=50, pos_y=ix_pos+15)
             draw_text2(self.screen, SPACE, 16, 'Meteors Dodged - 0' , WHITE, pos_x=240, pos_y=ix_pos+15)
             draw_text2(self.screen, SPACE, 16, 'Score - 0', WHITE, pos_x=590, pos_y=ix_pos+15)
             self.screen.blit(self.ship.image, (ix_pos, self.ship.rect.y))
@@ -199,7 +212,7 @@ class Screen:
             if ix_pos == 0:
                 draw_text2(self.screen, SPACE2, 54, 'READY?', WHITE, position='closecenterup', width=WIDTH, height=HEIGHT)
                 if ticks <= 1000:
-                    draw_text2(self.screen, SPACE, 16, 'Press < SPACE > to start', WHITE, position='closecenterbottom', width=WIDTH, height=HEIGHT)
+                    draw_text2(self.screen, SPACE, 16, 'Press < SPACE > to start', WHITE, position='center', width=WIDTH, height=HEIGHT)
                 elif ticks <= 1500:
                     pass
                 else:
@@ -289,16 +302,21 @@ class Screen:
                 else:
                     self.ticks = 0
                 
-    def _reset(self):
+    def _reset(self, all_data=False):
         '''
         Method that resets the meteors Group, ship state to "ALIVE", the ship rect y to 276(initial y),
-        the var for the planet draw to 0, and meteors dodged, score and ticks to 0
+        background_x to initial pos, the var for the planet draw to 0, and meteors dodged, score and ticks to 0,
+        sound restarts and if all_data we use in _pause_menu, we reset ship lifes to default (3)
         '''
         self.meteors.empty()
         self.ship.state = STATES['ALIVE']
         self.ship.rect.y = 276
+        self.background_x = 0
         self.planet_x = 0
         self.meteors_dodged = 0
         self.score = 0
         self.ticks = 0
         self.bg_sound.play()
+
+        if all_data:
+            self.ship.lifes = LIFES

@@ -55,6 +55,7 @@ STATES = {
     'HIDDEN':'HN',
     'DEAD':'D',
 }
+LIFES = 3
 
 # Colors
 BLACK = (0, 0, 0)
