@@ -17,6 +17,7 @@ class Screen:
         self.screen = pg.display.set_mode((WIDTH, HEIGHT))
         self.rect = self.screen.get_rect()
         pg.display.set_caption("The Quest")
+        self.bg_sound = load_sound(SOUNDS_FOLDER, 'background_sound.ogg')
 
         # Background img
         self.background = load_image(IMAGES_FOLDER, 'background.xcf', rect=False)
@@ -28,12 +29,10 @@ class Screen:
         self.meteors = pg.sprite.Group()
         self.ship = Ship()
         self.clock = pg.time.Clock() 
-        self.starting_screen = Starting_Screen(self.screen, self.ship)
 
         # Planet image and rect
         self.planet, self.rect_planet = load_image(IMAGES_FOLDER, 'jupiter.png', x=WIDTH, y=50)
         self.planet_x = 0 # For moving planet
-        self.planet_timer = 0 # For speed draw planet
 
         # Vars top level
         self.score = 0
@@ -42,23 +41,24 @@ class Screen:
         self.ticks = 0
         
     def new_game(self):
-        # Start a new game
-        # self.starting_screen.initial_screen()
+        '''
+        Starts level 1
+        '''
         self.run()
 
     def run(self):
         '''
         Main loop main game
         '''
-
+        self.bg_sound.set_volume(0.2)
+        self.bg_sound.play()
+        self._initial_screen(self.ticks)
         while self.ship.state != STATES['DEAD']:
             dt = self.clock.tick(FPS)
-            if self.ship.lifes == 3:
-                pass
-                # self._initial_screen(dt)
             if self.ship.state == STATES['NOT ALIVE']:
                 self._black_screen(self.ship.lifes, self.ticks)
                 self._reset()
+            print(self.ticks)
             self._add_meteors(dt)
             self._handle_events()
             self._update_screen(dt)
@@ -75,12 +75,16 @@ class Screen:
                 pg.quit()
                 sys.exit()
             if event.type == pg.KEYDOWN:
-                if event.key == pg.K_SPACE and self.ship.state == STATES['ALIVE']\
-                                and self.meteors_dodged >= METEORS_TO_DODGE and self.planet_x == 272:
-                    self.ship.state = STATES['ROTATING']
-
-                if event.key == pg.K_SPACE and self.ship.state == STATES['PREPARED TO LAND']:
-                    self.ship.state = STATES['LANDING']
+                if event.key == pg.K_SPACE: 
+                    if self.ship.state == STATES['ALIVE']\
+                    and self.meteors_dodged >= METEORS_TO_DODGE\
+                    and self.planet_x == 272:
+                        self.ship.state = STATES['ROTATING']
+                    if self.ship.state == STATES['PREPARED TO LAND']:
+                        self.ship.state = STATES['LANDING']
+                    if self.ship.state == STATES['HIDDEN']:
+                        pg.quit()
+                        sys.exit()
 
     def _update_screen(self, dt):
         '''
@@ -93,14 +97,15 @@ class Screen:
         self._top_level_menu()
 
         # Drawing Planet
-        self.planet_timer += dt
         if self.meteors_dodged >= METEORS_TO_DODGE:
             if self.ship.state != STATES['LANDED'] and self.ship.state != STATES['HIDDEN']:
-                if self.planet_x <= 270 and self.planet_timer >= 85:
+                self.ticks += dt
+                if self.planet_x <= 270 and self.ticks >= 85:
                     self.planet_x += 2
             else:
                 if self.planet_x >= 0:
                     self.planet_x -= 2
+
             self.screen.blit(self.planet, (self.rect_planet.x-self.planet_x, self.rect_planet.y))
 
         # Drawing Ship
@@ -110,7 +115,7 @@ class Screen:
         self.meteors.draw(self.screen)
 
         # Drawing end level messages
-        self._end_level_msg()
+        self._end_level_msg(dt)
 
         pg.display.flip()
 
@@ -165,12 +170,49 @@ class Screen:
         if self.ship.state == STATES['ALIVE']:
             if pg.sprite.spritecollide(self.ship, self.meteors, True):
                 self.ship.state = STATES['EXPLODING']
+                self.bg_sound.stop()
                 self.ship.explosion_sound.set_volume(0.02)
                 self.ship.explosion_sound.play()
 
-    def _initial_screen(self):
+    def _initial_screen(self, ticks):
         #TODO: This method
-        pass
+        starting = True
+        ix_pos = -50
+        while starting:
+            dt = self.clock.tick(FPS)
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    pg.quit()
+                    sys.exit()
+                if event.type == pg.KEYDOWN:
+                    if event.key == pg.K_SPACE and ix_pos == 0:
+                        starting = False
+            ticks += dt
+
+            load_and_draw_image(self.screen, IMAGES_FOLDER, 'background.xcf')
+            load_and_draw_image(self.screen, IMAGES_FOLDER, 'score1.png', y=ix_pos)
+            draw_text2(self.screen, SPACE, 16, 'Lifes - 3', WHITE, pos_x=50, pos_y=ix_pos+15)
+            draw_text2(self.screen, SPACE, 16, 'Meteors Dodged - 0' , WHITE, pos_x=240, pos_y=ix_pos+15)
+            draw_text2(self.screen, SPACE, 16, 'Score - 0', WHITE, pos_x=590, pos_y=ix_pos+15)
+            self.screen.blit(self.ship.image, (ix_pos, self.ship.rect.y))
+
+            if ix_pos == 0:
+                draw_text2(self.screen, SPACE2, 54, 'READY?', WHITE, position='closecenterup', width=WIDTH, height=HEIGHT)
+                if ticks <= 1000:
+                    draw_text2(self.screen, SPACE, 16, 'Press < SPACE > to start', WHITE, position='closecenterbottom', width=WIDTH, height=HEIGHT)
+                elif ticks <= 1500:
+                    pass
+                else:
+                    ticks = 0
+
+            if ix_pos != 0:
+                if ticks >= 85:
+                    ix_pos += 1
+                    ticks = 0
+
+            pg.display.flip()
+
+        ticks = 0
 
     def _black_screen(self, lifes, ticks):
         '''
@@ -218,7 +260,7 @@ class Screen:
         
         self.screen.blit(top_level_img, (0, 0))
 
-    def _end_level_msg(self):
+    def _end_level_msg(self, dt):
         '''
         Method that shows the last messages on the screen, when
         the planet appears
@@ -237,12 +279,20 @@ class Screen:
                 draw_text2(self.screen, SPACE, 26, 'SUCCESSFULLY LANDED!', WHITE, position='topcenter', pos_y=75, width=WIDTH)
             if self.ship.state == STATES['HIDDEN']:
                 draw_text2(self.screen, SPACE2, 54, 'JUPITER CONQUERED!', WHITE, position='center', width=WIDTH, height=HEIGHT)
-                draw_text2(self.screen, SPACE, 16, 'Press < SPACE > to continue', WHITE, position='bottomcenter', width=WIDTH, height=HEIGHT)
+
+                self.ticks+= dt
+
+                if self.ticks <= 500:
+                    draw_text2(self.screen, SPACE, 16, 'Press < SPACE > to continue', WHITE, position='bottomcenter', width=WIDTH, height=HEIGHT)
+                elif self.ticks <= 1000:
+                    pass
+                else:
+                    self.ticks = 0
                 
     def _reset(self):
         '''
         Method that resets the meteors Group, ship state to "ALIVE", the ship rect y to 276(initial y),
-        the var for the planet draw to 0, and meteors dodged and score to 0
+        the var for the planet draw to 0, and meteors dodged, score and ticks to 0
         '''
         self.meteors.empty()
         self.ship.state = STATES['ALIVE']
@@ -250,93 +300,5 @@ class Screen:
         self.planet_x = 0
         self.meteors_dodged = 0
         self.score = 0
-
-
-class Starting_Screen:
-
-    def __init__(self, screen, ship):
-
-        self.screen = screen
-        self.ship = ship
-        self.bg , self.bg_rect = load_image(IMAGES_FOLDER, 'background.xcf')
-
-        self.top_level_img, self.top_level_img_rect = load_image(IMAGES_FOLDER, 'score1.png', y=-50)
-        self.lifes_font, self.lifes_text = draw_text(SPACE, 16, 'Lifes - 3', WHITE)
-        self.score_font, self.score_text = draw_text(SPACE, 16, 'Score - 0', WHITE)
-        self.meteors_dodged_font, self.meteors_dodged_text = draw_text(SPACE, 16, 'Meteors Dodged - 0', WHITE)
-        self.ready_font, self.ready_txt = draw_text(SPACE2, 54, 'READY?', WHITE)
-        self.start_font, self.start_txt = draw_text(SPACE, 16, 'Press < SPACE > to start', WHITE)
-
-        self.starting = True
-
         self.ticks = 0
-        self.ix_pos = -50
-
-    def initial_screen(self):
-        '''
-        The main loop for initial screen, that show slowly the top level and ship 
-        '''
-        while self.starting:
-            dt = pg.time.Clock().tick(FPS)
-            self._handle_events()
-            self._update(dt)
-            self._update_ix_pos(dt)
-                
-    def _handle_events(self):
-        '''
-        Handling events
-        '''
-        for event in pg.event.get():
-            if event.type == pg.QUIT:
-                pg.quit()
-                sys.exit()
-            if event.type == pg.KEYDOWN:
-                if event.key == pg.K_SPACE and self.ix_pos == 0:
-                    self.starting = False
-
-    def _update(self, dt):
-        '''
-        Update method, that draws everything we need, background, top level img, lifes, meteors dodged and score
-        and ship.
-        When all that stuff is in, then we show a Ready and press button message
-        '''
-        self.screen.blit(self.bg, (0,0))
-
-        self.screen.blit(self.top_level_img, (0, self.ix_pos))
-        self.screen.blit(self.lifes_text, (50, self.ix_pos+15))
-        self.screen.blit(self.meteors_dodged_text, (240, self.ix_pos+15))
-        self.screen.blit(self.score_text, (590, self.ix_pos+15))
-        
-        self.screen.blit(self.ship.image, (self.ix_pos, self.ship.rect.y))
-        if self.ix_pos == 0:
-            self._show_ready_msg(dt)
-
-        pg.display.flip()
-
-    def _show_ready_msg(self, dt):
-        '''
-        Method that shows the ready and press button message.
-        We draw the press button message blink
-        '''
-        self.screen.blit(self.ready_txt, ((WIDTH/2)-(self.ready_txt.get_size()[0]//2), (HEIGHT/2)/2))
-
-        if self.ticks <= 1000:
-            self.screen.blit(self.start_txt, ((WIDTH/2)-(self.start_txt.get_size()[0]//2), (HEIGHT/2)-(self.start_txt.get_size()[1]//2)))
-        elif self.ticks <= 1500:
-            pass
-        else:
-            self.ticks = 0
-
-        self.ticks += dt
-
-    def _update_ix_pos(self, dt):
-        '''
-        The update for self.ix_pos. It works with top level and ship, for slowly movement
-        '''
-        if self.ix_pos == 0:
-            return
-
-        self.ticks += dt
-        if self.ticks >= 85:
-            self.ix_pos += 1
-            self.ticks = 0
+        self.bg_sound.play()
