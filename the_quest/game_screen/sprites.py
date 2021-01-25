@@ -7,8 +7,8 @@ import os
 
 from folders import *
 from tools import *
+from config import *
 
-from the_quest.game_screen.config import *
 
 
 class Ship(pg.sprite.Sprite):

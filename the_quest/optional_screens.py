@@ -2,8 +2,7 @@ import pygame as pg
 
 import os, sys
 
-from the_quest.game_screen.config import *
-
+from config import *
 from folders import *
 from tools import *
 

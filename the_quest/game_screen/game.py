@@ -4,9 +4,10 @@ import pygame_menu as pg_menu
 
 from folders import *
 from tools import *
+from config import *
 
 from the_quest.game_screen.sprites import *
-from the_quest.game_screen.config import *
+# from the_quest.game_screen.config import *
 
 from the_quest.optional_screens import *
 
@@ -19,7 +20,7 @@ class Screen:
         # Screen Configuration
         self.screen = pg.display.set_mode((WIDTH, HEIGHT))
         self.rect = self.screen.get_rect()
-        pg.display.set_caption("The Quest")
+        pg.display.set_caption(GAME_TITLE)
         self.bg_sound = load_sound(SOUNDS_FOLDER, 'background_sound.ogg')
 
         # Background img
