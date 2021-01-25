@@ -81,19 +81,19 @@ class PauseScreen:
         load_and_draw_image(screen, IMAGES_FOLDER, 'pause1.png', x=200, y=170)
 
         if option == 0:
-            draw_text2(screen, SPACE, 24, 'Continue', RED, position='center', width=WIDTH, height=HEIGHT)
-            draw_text2(screen, SPACE, 24, 'Restart', WHITE, position="closecenterbottom", width=WIDTH, height=HEIGHT)
-            draw_text2(screen, SPACE, 24, 'Quit', WHITE, position="closecenterbottom2", width=WIDTH, height=HEIGHT)
+            create_draw_text(screen, SPACE, 24, 'Continue', RED, position='center', width=WIDTH, height=HEIGHT)
+            create_draw_text(screen, SPACE, 24, 'Restart', WHITE, position="closecenterbottom", width=WIDTH, height=HEIGHT)
+            create_draw_text(screen, SPACE, 24, 'Quit', WHITE, position="closecenterbottom2", width=WIDTH, height=HEIGHT)
         elif option == 1:
-            draw_text2(screen, SPACE, 24, 'Continue', WHITE, position='center', width=WIDTH, height=HEIGHT)
-            draw_text2(screen, SPACE, 24, 'Restart', RED, position="closecenterbottom", width=WIDTH, height=HEIGHT)
-            draw_text2(screen, SPACE, 24, 'Quit', WHITE, position="closecenterbottom2", width=WIDTH, height=HEIGHT)
+            create_draw_text(screen, SPACE, 24, 'Continue', WHITE, position='center', width=WIDTH, height=HEIGHT)
+            create_draw_text(screen, SPACE, 24, 'Restart', RED, position="closecenterbottom", width=WIDTH, height=HEIGHT)
+            create_draw_text(screen, SPACE, 24, 'Quit', WHITE, position="closecenterbottom2", width=WIDTH, height=HEIGHT)
         else:
-            draw_text2(screen, SPACE, 24, 'Continue', WHITE, position='center', width=WIDTH, height=HEIGHT)
-            draw_text2(screen, SPACE, 24, 'Restart', WHITE, position="closecenterbottom", width=WIDTH, height=HEIGHT)
-            draw_text2(screen, SPACE, 24, 'Quit', RED, position="closecenterbottom2", width=WIDTH, height=HEIGHT)
+            create_draw_text(screen, SPACE, 24, 'Continue', WHITE, position='center', width=WIDTH, height=HEIGHT)
+            create_draw_text(screen, SPACE, 24, 'Restart', WHITE, position="closecenterbottom", width=WIDTH, height=HEIGHT)
+            create_draw_text(screen, SPACE, 24, 'Quit', RED, position="closecenterbottom2", width=WIDTH, height=HEIGHT)
 
-        draw_text2(screen, SPACE2, 48, 'PAUSE', WHITE, position='closecenterup', width=WIDTH, height=HEIGHT)
+        create_draw_text(screen, SPACE2, 48, 'PAUSE', WHITE, position='closecenterup', width=WIDTH, height=HEIGHT)
         pg.display.flip()
 
 class BlackScreen:
@@ -134,8 +134,8 @@ class BlackScreen:
         '''
         screen.fill(BLACK)
 
-        draw_text2(screen, SPACE2, 32, 'Level 1 - 1', WHITE, position='closecenterup', width=WIDTH, height=HEIGHT)
-        draw_text2(screen, SPACE, 16, 'Lifes - ', WHITE, position='closecenterleft', width=WIDTH, height=HEIGHT)
+        create_draw_text(screen, SPACE2, 32, 'Level 1 - 1', WHITE, position='closecenterup', width=WIDTH, height=HEIGHT)
+        create_draw_text(screen, SPACE, 16, 'Lifes - ', WHITE, position='closecenterleft', width=WIDTH, height=HEIGHT)
 
         x_pos_lifes = 0
         for life in range(lifes):
@@ -143,7 +143,7 @@ class BlackScreen:
             x_pos_lifes += self.ship_rect.w
 
         if self.ticks <= 500:
-            draw_text2(screen, SPACE, 16, 'Press < SPACE > to start', WHITE, position='bottomcenter', width=WIDTH, height=HEIGHT)
+            create_draw_text(screen, SPACE, 16, 'Press < SPACE > to start', WHITE, position='bottomcenter', width=WIDTH, height=HEIGHT)
         elif self.ticks <= 1000:
             pass
         else:

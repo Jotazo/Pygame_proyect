@@ -1,10 +1,12 @@
 '''
-Tools for help to load some stuff
+Tools for help to load and draw some stuff
 '''
 
 import pygame as pg
 
 import os
+
+# IMAGES TOOLS
 
 def load_image(path, img, x=0, y=0, rect=True):
     '''
@@ -37,31 +39,9 @@ def load_and_draw_image(screen, path, img, x=0, y=0):
 
     screen.blit(img, (x, y))
 
-def draw_text(font, size, text, color, antialias=True):
-    '''
-    Function that returns the font and the image to render with text.
-    font = We have to put the complete direction where we have the font. Ex: 'resources/fonts/xxx.ttf'
-    size = The size we want to our text
-    color = The color we want to our text
-    antialias = For default is True, but if we want to change, we only need to specify to "False"
-    '''
-    text_font = pg.font.Font(font, size)
-    text_font_img = text_font.render(text, antialias, color)
+# TEXT TOOLS
 
-    return text_font, text_font_img
-
-def load_sound(path, sound):
-    '''
-    Function that returns a sound loaded.
-    path = It's the path of the sound
-    sound = name of the sound that we want to load. Ex: 'sound.wav'
-    '''
-
-    sound = pg.mixer.Sound(os.path.join(path, sound))
-
-    return sound
-
-def draw_text2(screen, font, size, text, color, position='', pos_x=0, pos_y=0, width=0, height=0, antialias=True):
+def create_draw_text(screen, font, size, text, color, position='', pos_x=0, pos_y=0, width=0, height=0, antialias=True):
     '''
     Function that draws text on the screen
     screen = the surface where we want to draw the text
@@ -116,3 +96,17 @@ def draw_text2(screen, font, size, text, color, position='', pos_x=0, pos_y=0, w
         pos_y = height/1.2-(msg_txt.get_size()[1]//2)
 
     screen.blit(msg_txt, (pos_x, pos_y))
+
+# SOUNDS TOOLS
+    
+def load_sound(path, sound):
+    '''
+    Function that returns a sound loaded.
+    path = It's the path of the sound
+    sound = name of the sound that we want to load. Ex: 'sound.wav'
+    '''
+
+    sound = pg.mixer.Sound(os.path.join(path, sound))
+
+    return sound
+

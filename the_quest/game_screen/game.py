@@ -207,15 +207,15 @@ class Screen:
 
             load_and_draw_image(self.screen, IMAGES_FOLDER, 'background.xcf')
             load_and_draw_image(self.screen, IMAGES_FOLDER, 'score1.png', y=ix_pos)
-            draw_text2(self.screen, SPACE, 16, f'Lifes - {self.ship.lifes}', WHITE, pos_x=50, pos_y=ix_pos+15)
-            draw_text2(self.screen, SPACE, 16, 'Meteors Dodged - 0' , WHITE, pos_x=240, pos_y=ix_pos+15)
-            draw_text2(self.screen, SPACE, 16, 'Score - 0', WHITE, pos_x=590, pos_y=ix_pos+15)
+            create_draw_text(self.screen, SPACE, 16, f'Lifes - {self.ship.lifes}', WHITE, pos_x=50, pos_y=ix_pos+15)
+            create_draw_text(self.screen, SPACE, 16, 'Meteors Dodged - 0' , WHITE, pos_x=240, pos_y=ix_pos+15)
+            create_draw_text(self.screen, SPACE, 16, 'Score - 0', WHITE, pos_x=590, pos_y=ix_pos+15)
             self.screen.blit(self.ship.image, (ix_pos, self.ship.rect.y))
 
             if ix_pos == 0:
-                draw_text2(self.screen, SPACE2, 54, 'READY?', WHITE, position='closecenterup', width=WIDTH, height=HEIGHT)
+                create_draw_text(self.screen, SPACE2, 54, 'READY?', WHITE, position='closecenterup', width=WIDTH, height=HEIGHT)
                 if ticks <= 1000:
-                    draw_text2(self.screen, SPACE, 16, 'Press < SPACE > to start', WHITE, position='center', width=WIDTH, height=HEIGHT)
+                    create_draw_text(self.screen, SPACE, 16, 'Press < SPACE > to start', WHITE, position='center', width=WIDTH, height=HEIGHT)
                 elif ticks <= 1500:
                     pass
                 else:
@@ -235,9 +235,9 @@ class Screen:
         Method that shows the top level image and text
         '''
         top_level_img, top_level_img_rect = load_image(IMAGES_FOLDER, 'score1.png')
-        draw_text2(self.screen, SPACE, 16, f'Lifes - {self.ship.lifes}', WHITE, pos_x=50, pos_y=15)
-        draw_text2(self.screen, SPACE, 16, f'Meteors Dodged - {self.meteors_dodged}', WHITE, pos_x=240, pos_y=15)
-        draw_text2(self.screen, SPACE, 16, f'Score - {self.score}', WHITE, pos_x=590, pos_y=15)
+        create_draw_text(self.screen, SPACE, 16, f'Lifes - {self.ship.lifes}', WHITE, pos_x=50, pos_y=15)
+        create_draw_text(self.screen, SPACE, 16, f'Meteors Dodged - {self.meteors_dodged}', WHITE, pos_x=240, pos_y=15)
+        create_draw_text(self.screen, SPACE, 16, f'Score - {self.score}', WHITE, pos_x=590, pos_y=15)
         
         self.screen.blit(top_level_img, (0, 0))
 
@@ -248,23 +248,23 @@ class Screen:
         '''
         if self.planet_x >= 270:
             if self.ship.state == STATES['ALIVE']:
-                draw_text2(self.screen, SPACE, 16, 'Press < SPACE > to rotate the ship', WHITE, position='topcenter', width=WIDTH)
+                create_draw_text(self.screen, SPACE, 16, 'Press < SPACE > to rotate the ship', WHITE, position='topcenter', width=WIDTH)
             if self.ship.state == STATES['ROTATING']:
-                draw_text2(self.screen, SPACE, 16, 'Rotating ship, please, wait...', WHITE, position='topcenter', width=WIDTH)
+                create_draw_text(self.screen, SPACE, 16, 'Rotating ship, please, wait...', WHITE, position='topcenter', width=WIDTH)
             if self.ship.state == STATES['PREPARED TO LAND']:
-                draw_text2(self.screen, SPACE, 16, 'Press < SPACE > to land', WHITE, position='topcenter', width=WIDTH)
+                create_draw_text(self.screen, SPACE, 16, 'Press < SPACE > to land', WHITE, position='topcenter', width=WIDTH)
             if self.ship.state == STATES['LANDING']:
-                draw_text2(self.screen, SPACE, 16, 'Landing, please, wait...', WHITE, position='topcenter', width=WIDTH)
+                create_draw_text(self.screen, SPACE, 16, 'Landing, please, wait...', WHITE, position='topcenter', width=WIDTH)
         else:
             if self.ship.state == STATES['LANDED']:
-                draw_text2(self.screen, SPACE, 26, 'SUCCESSFULLY LANDED!', WHITE, position='topcenter', width=WIDTH)
+                create_draw_text(self.screen, SPACE, 26, 'SUCCESSFULLY LANDED!', WHITE, position='topcenter', width=WIDTH)
             if self.ship.state == STATES['HIDDEN']:
-                draw_text2(self.screen, SPACE2, 54, 'JUPITER CONQUERED!', WHITE, position='center', width=WIDTH, height=HEIGHT)
+                create_draw_text(self.screen, SPACE2, 54, 'JUPITER CONQUERED!', WHITE, position='center', width=WIDTH, height=HEIGHT)
 
                 self.ticks+= dt
 
                 if self.ticks <= 500:
-                    draw_text2(self.screen, SPACE, 16, 'Press < SPACE > to continue', WHITE, position='bottomcenter', width=WIDTH, height=HEIGHT)
+                    create_draw_text(self.screen, SPACE, 16, 'Press < SPACE > to continue', WHITE, position='bottomcenter', width=WIDTH, height=HEIGHT)
                 elif self.ticks <= 1000:
                     pass
                 else:
