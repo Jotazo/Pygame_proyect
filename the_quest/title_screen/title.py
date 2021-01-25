@@ -17,27 +17,29 @@ class TitleScreen:
 
         self.starting = True
 
+        # Vars initial animation
         self.x_pos_ship = 800
         self.y_pos_ship = 110
-
         self.x_pos_title = 848
         self.y_pos_title = 75
 
+        # Option selected
         self.option = 0
 
+        # Sounds
         self.title_sound = load_sound(SOUNDS_FOLDER, 'title-screen.wav')
-
+        self.title_sound.set_volume(BACKGROUND_VOL)
+        
         self.clock = pg.time.Clock()
 
     def title_screen(self):
-        self._intial_animation()
-        self.title_sound.set_volume(0.2)
         self.title_sound.play()
+        self._intial_animation()        
         while self.starting:
             dt = self.clock.tick(FPS)
             self._handle_events()
-            self._draw_title()
-            self._draw_options()
+            if self.starting:
+                self._draw_screen()
             pg.display.flip()
         self.starting = True
 
@@ -53,10 +55,13 @@ class TitleScreen:
         if event.key == pg.K_DOWN:
             if self.option < 2:
                 self.option += 1
+                OPTION_SOUND.play()
         if event.key == pg.K_UP:
             if self.option > 0:
                 self.option -= 1
+                OPTION_SOUND.play()
         if event.key == pg.K_RETURN:
+            SELECTED_SOUND.play()
             self._check_op(self.option)
         if event.key == pg.K_ESCAPE:
             pg.quit()
@@ -66,6 +71,7 @@ class TitleScreen:
         if option == 0:
             # Start New Game
             self.starting = False
+            self._fade()
             self.title_sound.stop()
         elif option == 1:
             # Settings screen
@@ -95,6 +101,10 @@ class TitleScreen:
             
             pg.display.flip()
             
+    def _draw_screen(self):
+
+        self._draw_title()
+        self._draw_options()
 
     def _draw_title(self):
         create_draw_text(self.screen, TITLE, 120, 'THE QUEST', WHITE, position='topcenter', width=WIDTH, height=HEIGHT)
@@ -112,3 +122,24 @@ class TitleScreen:
             create_draw_text(self.screen, SPACE, 24, 'New Game', WHITE, position='center', width=WIDTH, height=HEIGHT)
             create_draw_text(self.screen, SPACE, 24, 'Settings', WHITE, position='closecenterbottom', width=WIDTH, height=HEIGHT)
             create_draw_text(self.screen, SPACE, 24, 'Exit', RED, position='closecenterbottom2', width=WIDTH, height=HEIGHT)
+
+    def _fade(self):
+        fade = pg.Surface((WIDTH, HEIGHT))
+        fade.fill((BLACK))
+        bg_img = load_image(IMAGES_FOLDER, 'background.xcf', rect=False)
+        vol = 0.5
+        alpha = 0
+        for alpha in range(0, 255):
+            fade.set_alpha(alpha)
+            vol -= 0.0019
+            self.title_sound.set_volume(vol)
+            self._draw_screen()
+            self.screen.blit(fade, (0,0))
+            pg.display.flip()
+            pg.time.delay(5)
+        for alpha in range(255, 0, -1):
+            fade.set_alpha(alpha)
+            self.screen.blit(bg_img, (0,0))
+            self.screen.blit(fade, (0,0))
+            pg.display.flip()
+            pg.time.delay(5)

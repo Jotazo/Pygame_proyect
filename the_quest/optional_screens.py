@@ -46,11 +46,14 @@ class PauseScreen:
             self.paused = False
         if event.key == pg.K_DOWN:
             if self.option < 2:
+                OPTION_SOUND.play()
                 self.option += 1
         if event.key == pg.K_UP:
             if self.option > 0:
+                OPTION_SOUND.play()
                 self.option -= 1
         if event.key == pg.K_RETURN:
+            SELECTED_SOUND.play()
             self._check_op(self.option)
 
     def _check_op(self, option):

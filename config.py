@@ -7,6 +7,7 @@ import os, random
 from folders import *
 from tools import *
 
+pg.mixer.init()
 # Screen Settings
 WIDTH = 800
 HEIGHT = 600
@@ -69,3 +70,12 @@ BLUE = (0, 0, 255)
 SPACE = os.path.join(FONTS_FOLDER, 'Space_font.ttf')
 SPACE2 = os.path.join(FONTS_FOLDER, 'Space_font2.ttf')
 TITLE = os.path.join(FONTS_FOLDER, 'title-rayadoitalic2.otf')
+
+# Sounds
+OPTION_SOUND = load_sound(SOUNDS_FOLDER, 'option.wav')
+OPTION_SOUND.set_volume(0.02)
+SELECTED_SOUND = load_sound(SOUNDS_FOLDER, 'option-selected.wav')
+SELECTED_SOUND.set_volume(0.02)
+
+# Sounds Settings
+BACKGROUND_VOL = 0.2

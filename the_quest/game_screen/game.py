@@ -1,6 +1,5 @@
 import pygame as pg
 import sys, os
-import pygame_menu as pg_menu
 
 from folders import *
 from tools import *
@@ -22,7 +21,8 @@ class Screen:
         self.rect = self.screen.get_rect()
         pg.display.set_caption(GAME_TITLE)
         self.bg_sound = load_sound(SOUNDS_FOLDER, 'background_sound.ogg')
-
+        self.bg_sound.set_volume(BACKGROUND_VOL)
+        
         # Background img
         self.background = load_image(IMAGES_FOLDER, 'background.xcf', rect=False)
         self.background_x = 0 # For moving_background
@@ -56,7 +56,6 @@ class Screen:
         '''
         Main loop main game
         '''
-        self.bg_sound.set_volume(0.02)
         self.bg_sound.play()
         self._initial_screen(self.ticks)
 
