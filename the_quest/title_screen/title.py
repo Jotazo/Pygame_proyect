@@ -2,9 +2,12 @@ import pygame as pg
 
 import os, sys
 
+from the_quest.title_screen.how_to import *
+
 from config import *
 from folders import *
 from tools import *
+
 
 
 class TitleScreen:
@@ -16,6 +19,8 @@ class TitleScreen:
         self.ship_img = load_image(SHIP_FOLDER, 'ship.xcf', rect=False)
 
         self.starting = True
+
+        self.htp = How_To()
 
         # Vars initial animation
         self.x_pos_ship = 800
@@ -29,7 +34,7 @@ class TitleScreen:
         # Sounds
         self.title_sound = load_sound(SOUNDS_FOLDER, 'title-screen.wav')
         self.title_sound.set_volume(BACKGROUND_VOL)
-        
+
         self.clock = pg.time.Clock()
 
     def title_screen(self):
@@ -53,14 +58,14 @@ class TitleScreen:
 
     def _keydown_events(self, event):
         if event.key == pg.K_DOWN:
-            if self.option < 2:
+            if self.option < 3:
                 self.option += 1
                 OPTION_SOUND.play()
         if event.key == pg.K_UP:
             if self.option > 0:
                 self.option -= 1
                 OPTION_SOUND.play()
-        if event.key == pg.K_RETURN:
+        if event.key == pg.K_SPACE:
             SELECTED_SOUND.play()
             self._check_op(self.option)
         if event.key == pg.K_ESCAPE:
@@ -71,10 +76,13 @@ class TitleScreen:
         if option == 0:
             # Start New Game
             self.starting = False
-            self._fade()
+            self._fade_start()
             self.title_sound.stop()
         elif option == 1:
-            # Settings screen
+            # How To Play Screen
+            self.htp.show_screen(self.screen)
+        elif option == 2:
+            # Records Screen
             pass
         else:
             # Exit Game
@@ -91,8 +99,9 @@ class TitleScreen:
             load_and_draw_image(self.screen, SHIP_FOLDER, 'ship-title.png', x=self.x_pos_ship, y=self.y_pos_ship)
             create_draw_text(self.screen, TITLE, 120, 'THE QUEST', WHITE, pos_x=self.x_pos_title, pos_y=self.y_pos_title)
             self.x_pos_ship -= 5
-            if self.x_pos_title >= 66.0:
+            if self.x_pos_title > 66.0:
                 self.x_pos_title -= 5
+                print(self.x_pos_title)
             else:
                 # title sound
                 pass
@@ -112,18 +121,26 @@ class TitleScreen:
     def _draw_options(self):
         if self.option == 0:
             create_draw_text(self.screen, SPACE, 24, 'New Game', RED, position='center', width=WIDTH, height=HEIGHT)
-            create_draw_text(self.screen, SPACE, 24, 'Settings', WHITE, position='closecenterbottom', width=WIDTH, height=HEIGHT)
-            create_draw_text(self.screen, SPACE, 24, 'Exit', WHITE, position='closecenterbottom2', width=WIDTH, height=HEIGHT)
+            create_draw_text(self.screen, SPACE, 24, 'How To Play', WHITE, position='closecenterbottom', width=WIDTH, height=HEIGHT)
+            create_draw_text(self.screen, SPACE, 24, 'Records', WHITE, position='closecenterbottom2', width=WIDTH, height=HEIGHT)
+            create_draw_text(self.screen, SPACE, 24, 'Exit', WHITE, position='closecenterbottom3', width=WIDTH, height=HEIGHT)
         elif self.option == 1:
             create_draw_text(self.screen, SPACE, 24, 'New Game', WHITE, position='center', width=WIDTH, height=HEIGHT)
-            create_draw_text(self.screen, SPACE, 24, 'Settings', RED, position='closecenterbottom', width=WIDTH, height=HEIGHT)
-            create_draw_text(self.screen, SPACE, 24, 'Exit', WHITE, position='closecenterbottom2', width=WIDTH, height=HEIGHT)
+            create_draw_text(self.screen, SPACE, 24, 'How To Play', RED, position='closecenterbottom', width=WIDTH, height=HEIGHT)
+            create_draw_text(self.screen, SPACE, 24, 'Records', WHITE, position='closecenterbottom2', width=WIDTH, height=HEIGHT)
+            create_draw_text(self.screen, SPACE, 24, 'Exit', WHITE, position='closecenterbottom3', width=WIDTH, height=HEIGHT)
+        elif self.option == 2:
+            create_draw_text(self.screen, SPACE, 24, 'New Game', WHITE, position='center', width=WIDTH, height=HEIGHT)
+            create_draw_text(self.screen, SPACE, 24, 'How To Play', WHITE, position='closecenterbottom', width=WIDTH, height=HEIGHT)
+            create_draw_text(self.screen, SPACE, 24, 'Records', RED, position='closecenterbottom2', width=WIDTH, height=HEIGHT)
+            create_draw_text(self.screen, SPACE, 24, 'Exit', WHITE, position='closecenterbottom3', width=WIDTH, height=HEIGHT)
         else:
             create_draw_text(self.screen, SPACE, 24, 'New Game', WHITE, position='center', width=WIDTH, height=HEIGHT)
-            create_draw_text(self.screen, SPACE, 24, 'Settings', WHITE, position='closecenterbottom', width=WIDTH, height=HEIGHT)
-            create_draw_text(self.screen, SPACE, 24, 'Exit', RED, position='closecenterbottom2', width=WIDTH, height=HEIGHT)
+            create_draw_text(self.screen, SPACE, 24, 'How To Play', WHITE, position='closecenterbottom', width=WIDTH, height=HEIGHT)
+            create_draw_text(self.screen, SPACE, 24, 'Records', WHITE, position='closecenterbottom2', width=WIDTH, height=HEIGHT)
+            create_draw_text(self.screen, SPACE, 24, 'Exit', RED, position='closecenterbottom3', width=WIDTH, height=HEIGHT)
 
-    def _fade(self):
+    def _fade_start(self):
         fade = pg.Surface((WIDTH, HEIGHT))
         fade.fill((BLACK))
         bg_img = load_image(IMAGES_FOLDER, 'background.xcf', rect=False)

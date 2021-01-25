@@ -62,6 +62,7 @@ def create_draw_text(screen, font, size, text, color, position='', pos_x=0, pos_
             closecenterbottom = takes the center of text size and puts centered in width
                         and centered in height but more closer to bottom
             closecenterbottom2 = same as closecenterbottom but a little bit lower
+            closecenterbottom3 = same as closecenterbottom2 but a little bit lower
             bottomcenter = puts the text centered on width and closer to bottom
                         margin of the screen
         If we choose to add position param, we must to use also width and height
@@ -91,10 +92,16 @@ def create_draw_text(screen, font, size, text, color, position='', pos_x=0, pos_
     if position == 'closecenterbottom2':
         pos_x = width/2-(msg_txt.get_size()[0]//2)
         pos_y = height//1.49-(msg_txt.get_size()[1]//2)
+    if position == 'closecenterbottom3':
+        pos_x = width/2-(msg_txt.get_size()[0]//2)
+        pos_y = height//1.32-(msg_txt.get_size()[1]//2)
     if position == 'bottomcenter':
         pos_x = width/2-(msg_txt.get_size()[0]//2)
         pos_y = height/1.2-(msg_txt.get_size()[1]//2)
 
+    # if position:
+    #     screen.blit(msg_txt, (positions[position][pos_x], positions[position][pos_y]))
+    # else:
     screen.blit(msg_txt, (pos_x, pos_y))
 
 # SOUNDS TOOLS
